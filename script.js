@@ -1,13 +1,13 @@
-
 class ConfessionSite {
     constructor() {
-        this.confessions = JSON.parse(localStorage.getItem('confessions')) || [];
-        this.favorites = JSON.parse(localStorage.getItem('favorites')) || [];
-        this.currentFilter = 'all';
-        this.currentSort = 'newest';
-        this.searchTerm = '';
+        this.confessions =
+            JSON.parse(localStorage.getItem("confessions")) || [];
+        this.favorites = JSON.parse(localStorage.getItem("favorites")) || [];
+        this.currentFilter = "all";
+        this.currentSort = "newest";
+        this.searchTerm = "";
         this.currentConfessionId = null;
-        this.isDarkMode = localStorage.getItem('darkMode') === 'true';
+        this.isDarkMode = localStorage.getItem("darkMode") === "true";
         this.init();
     }
 
@@ -22,59 +22,63 @@ class ConfessionSite {
     }
 
     setupElements() {
-        this.confessionText = document.getElementById('confessionText');
-        this.submitBtn = document.getElementById('submitBtn');
-        this.charCount = document.getElementById('charCount');
-        this.confessionsList = document.getElementById('confessionsList');
-        this.categorySelect = document.getElementById('categorySelect');
-        this.searchInput = document.getElementById('searchInput');
-        this.categoryFilter = document.getElementById('categoryFilter');
-        this.sortSelect = document.getElementById('sortSelect');
-        this.emojiPicker = document.getElementById('emojiPicker');
-        this.themeToggle = document.getElementById('themeToggle');
-        this.commentModal = document.getElementById('commentModal');
+        this.confessionText = document.getElementById("confessionText");
+        this.submitBtn = document.getElementById("submitBtn");
+        this.charCount = document.getElementById("charCount");
+        this.confessionsList = document.getElementById("confessionsList");
+        this.categorySelect = document.getElementById("categorySelect");
+        this.searchInput = document.getElementById("searchInput");
+        this.categoryFilter = document.getElementById("categoryFilter");
+        this.sortSelect = document.getElementById("sortSelect");
+        this.emojiPicker = document.getElementById("emojiPicker");
+        this.themeToggle = document.getElementById("themeToggle");
+        this.commentModal = document.getElementById("commentModal");
     }
 
     setupEventListeners() {
         // Mevcut event listener'lar
-        this.confessionText.addEventListener('input', () => {
+        this.confessionText.addEventListener("input", () => {
             this.updateCharCounter();
             this.autoSave();
         });
 
-        this.submitBtn.addEventListener('click', () => {
+        this.submitBtn.addEventListener("click", () => {
             this.submitConfession();
         });
 
-        this.confessionText.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter' && e.ctrlKey) {
+        this.confessionText.addEventListener("keypress", (e) => {
+            if (e.key === "Enter" && e.ctrlKey) {
                 this.submitConfession();
             }
         });
 
         // Yeni event listener'lar
-        this.searchInput.addEventListener('input', () => {
+        this.searchInput.addEventListener("input", () => {
             this.searchTerm = this.searchInput.value.toLowerCase();
             this.displayConfessions();
         });
 
-        this.categoryFilter.addEventListener('change', () => {
+        this.categoryFilter.addEventListener("change", () => {
             this.currentFilter = this.categoryFilter.value;
             this.displayConfessions();
         });
 
-        this.sortSelect.addEventListener('change', () => {
+        this.sortSelect.addEventListener("change", () => {
             this.currentSort = this.sortSelect.value;
             this.displayConfessions();
         });
 
         // Emoji picker
-        document.querySelectorAll('.emoji-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
+        document.querySelectorAll(".emoji-btn").forEach((btn) => {
+            btn.addEventListener("click", () => {
                 const emoji = btn.textContent;
                 const cursorPos = this.confessionText.selectionStart;
-                const textBefore = this.confessionText.value.substring(0, cursorPos);
-                const textAfter = this.confessionText.value.substring(cursorPos);
+                const textBefore = this.confessionText.value.substring(
+                    0,
+                    cursorPos,
+                );
+                const textAfter =
+                    this.confessionText.value.substring(cursorPos);
                 this.confessionText.value = textBefore + emoji + textAfter;
                 this.confessionText.selectionStart = cursorPos + emoji.length;
                 this.confessionText.selectionEnd = cursorPos + emoji.length;
@@ -84,31 +88,33 @@ class ConfessionSite {
         });
 
         // Tema değiştirici
-        this.themeToggle.addEventListener('click', () => {
+        this.themeToggle.addEventListener("click", () => {
             this.toggleTheme();
         });
 
         // Aksiyon butonları
-        document.getElementById('randomBtn').addEventListener('click', () => {
+        document.getElementById("randomBtn").addEventListener("click", () => {
             this.showRandomConfession();
         });
 
-        document.getElementById('dailyBtn').addEventListener('click', () => {
+        document.getElementById("dailyBtn").addEventListener("click", () => {
             this.showDailyConfession();
         });
 
-        document.getElementById('favoritesBtn').addEventListener('click', () => {
-            this.showFavorites();
-        });
+        document
+            .getElementById("favoritesBtn")
+            .addEventListener("click", () => {
+                this.showFavorites();
+            });
 
         // Modal kapatma
-        document.querySelector('.close').addEventListener('click', () => {
-            this.commentModal.style.display = 'none';
+        document.querySelector(".close").addEventListener("click", () => {
+            this.commentModal.style.display = "none";
         });
 
-        window.addEventListener('click', (e) => {
+        window.addEventListener("click", (e) => {
             if (e.target === this.commentModal) {
-                this.commentModal.style.display = 'none';
+                this.commentModal.style.display = "none";
             }
         });
 
@@ -119,27 +125,27 @@ class ConfessionSite {
     updateCharCounter() {
         const length = this.confessionText.value.length;
         this.charCount.textContent = length;
-        
+
         if (length > 450) {
-            this.charCount.style.color = '#ff4444';
+            this.charCount.style.color = "#ff4444";
         } else if (length > 350) {
-            this.charCount.style.color = '#ff8800';
+            this.charCount.style.color = "#ff8800";
         } else {
-            this.charCount.style.color = 'var(--text-secondary)';
+            this.charCount.style.color = "var(--text-secondary)";
         }
     }
 
     submitConfession() {
         const text = this.confessionText.value.trim();
         const category = this.categorySelect.value;
-        
+
         if (!text) {
-            this.showError('Lütfen bir itiraf yazın!');
+            this.showError("Lütfen bir itiraf yazın!");
             return;
         }
 
         if (text.length < 10) {
-            this.showError('İtirafınız en az 10 karakter olmalı!');
+            this.showError("İtirafınız en az 10 karakter olmalı!");
             return;
         }
 
@@ -147,7 +153,7 @@ class ConfessionSite {
             id: Date.now(),
             text: text,
             category: category,
-            timestamp: new Date().toLocaleString('tr-TR'),
+            timestamp: new Date().toLocaleString("tr-TR"),
             date: new Date().toDateString(),
             likes: 0,
             dislikes: 0,
@@ -157,7 +163,7 @@ class ConfessionSite {
             angry: 0,
             comments: [],
             rating: 0,
-            ratings: []
+            ratings: [],
         };
 
         this.confessions.unshift(confession);
@@ -168,8 +174,8 @@ class ConfessionSite {
         this.triggerConfetti();
         this.updateStats();
         this.clearAutoSave();
-        this.playSound('success');
-        this.showNotification('İtiraf başarıyla gönderildi! ✨', 'success');
+        this.playSound("success");
+        this.showNotification("İtiraf başarıyla gönderildi! ✨", "success");
     }
 
     displayConfessions() {
@@ -177,41 +183,48 @@ class ConfessionSite {
 
         // Arama filtresi
         if (this.searchTerm) {
-            filteredConfessions = filteredConfessions.filter(confession =>
-                confession.text.toLowerCase().includes(this.searchTerm) ||
-                confession.category.toLowerCase().includes(this.searchTerm)
+            filteredConfessions = filteredConfessions.filter(
+                (confession) =>
+                    confession.text.toLowerCase().includes(this.searchTerm) ||
+                    confession.category.toLowerCase().includes(this.searchTerm),
             );
         }
 
         // Kategori filtresi
-        if (this.currentFilter !== 'all') {
-            filteredConfessions = filteredConfessions.filter(confession =>
-                confession.category === this.currentFilter
+        if (this.currentFilter !== "all") {
+            filteredConfessions = filteredConfessions.filter(
+                (confession) => confession.category === this.currentFilter,
             );
         }
 
         // Sıralama
         switch (this.currentSort) {
-            case 'oldest':
+            case "oldest":
                 filteredConfessions.reverse();
                 break;
-            case 'mostLiked':
-                filteredConfessions.sort((a, b) => (b.likes + b.love) - (a.likes + a.love));
+            case "mostLiked":
+                filteredConfessions.sort(
+                    (a, b) => b.likes + b.love - (a.likes + a.love),
+                );
                 break;
-            case 'random':
+            case "random":
                 filteredConfessions = this.shuffleArray(filteredConfessions);
                 break;
         }
 
-        this.confessionsList.innerHTML = '';
-        
+        this.confessionsList.innerHTML = "";
+
         if (filteredConfessions.length === 0) {
             this.confessionsList.innerHTML = `
                 <div class="confession-item" style="text-align: center; opacity: 0.7;">
                     <p class="confession-text">
-                        ${this.searchTerm ? 'Arama kriterlerinize uygun itiraf bulunamadı. 🔍' : 
-                          this.currentFilter !== 'all' ? 'Bu kategoride henüz itiraf yok. 📝' :
-                          'Henüz hiç itiraf yok. İlk itirafı sen yap! 🌟'}
+                        ${
+                            this.searchTerm
+                                ? "Arama kriterlerinize uygun itiraf bulunamadı. 🔍"
+                                : this.currentFilter !== "all"
+                                  ? "Bu kategoride henüz itiraf yok. 📝"
+                                  : "Henüz hiç itiraf yok. İlk itirafı sen yap! 🌟"
+                        }
                     </p>
                 </div>
             `;
@@ -219,25 +232,28 @@ class ConfessionSite {
         }
 
         filteredConfessions.forEach((confession, index) => {
-            const confessionElement = this.createConfessionElement(confession, index);
+            const confessionElement = this.createConfessionElement(
+                confession,
+                index,
+            );
             this.confessionsList.appendChild(confessionElement);
         });
     }
 
     createConfessionElement(confession, index) {
-        const div = document.createElement('div');
-        div.className = 'confession-item';
+        const div = document.createElement("div");
+        div.className = "confession-item";
         div.style.animationDelay = `${index * 0.1}s`;
-        
+
         const categoryEmoji = this.getCategoryEmoji(confession.category);
         const isFavorite = this.favorites.includes(confession.id);
-        
+
         div.innerHTML = `
             <div class="confession-header">
                 <span class="confession-category">${categoryEmoji} ${this.getCategoryName(confession.category)}</span>
                 <div class="confession-actions">
-                    <button class="favorite-btn ${isFavorite ? 'active' : ''}" onclick="confessionSite.toggleFavorite(${confession.id})">
-                        ${isFavorite ? '💖' : '🤍'}
+                    <button class="favorite-btn ${isFavorite ? "active" : ""}" onclick="confessionSite.toggleFavorite(${confession.id})">
+                        ${isFavorite ? "💖" : "🤍"}
                     </button>
                     <button class="share-btn" onclick="confessionSite.shareConfession(${confession.id})">📤</button>
                 </div>
@@ -280,40 +296,40 @@ class ConfessionSite {
 
     getCategoryEmoji(category) {
         const emojis = {
-            genel: '🌟',
-            ask: '💕',
-            is: '💼',
-            aile: '👨‍👩‍👧‍👦',
-            arkadas: '👫',
-            korku: '😱',
-            mutluluk: '😊',
-            pisman: '😔'
+            genel: "🌟",
+            ask: "💕",
+            is: "💼",
+            aile: "👨‍👩‍👧‍👦",
+            arkadas: "👫",
+            korku: "😱",
+            mutluluk: "😊",
+            pisman: "😔",
         };
-        return emojis[category] || '🌟';
+        return emojis[category] || "🌟";
     }
 
     getCategoryName(category) {
         const names = {
-            genel: 'Genel',
-            ask: 'Aşk',
-            is: 'İş/Okul',
-            aile: 'Aile',
-            arkadas: 'Arkadaşlık',
-            korku: 'Korku/Endişe',
-            mutluluk: 'Mutluluk',
-            pisman: 'Pişmanlık'
+            genel: "Genel",
+            ask: "Aşk",
+            is: "İş/Okul",
+            aile: "Aile",
+            arkadas: "Arkadaşlık",
+            korku: "Korku/Endişe",
+            mutluluk: "Mutluluk",
+            pisman: "Pişmanlık",
         };
-        return names[category] || 'Genel';
+        return names[category] || "Genel";
     }
 
     addReaction(id, type) {
-        const confession = this.confessions.find(c => c.id === id);
+        const confession = this.confessions.find((c) => c.id === id);
         if (confession) {
             confession[type] = (confession[type] || 0) + 1;
             this.saveConfessions();
             this.displayConfessions();
             this.updateStats();
-            this.playSound('reaction');
+            this.playSound("reaction");
         }
     }
 
@@ -321,51 +337,54 @@ class ConfessionSite {
         const index = this.favorites.indexOf(id);
         if (index > -1) {
             this.favorites.splice(index, 1);
-            this.showNotification('Favorilerden çıkarıldı', 'info');
+            this.showNotification("Favorilerden çıkarıldı", "info");
         } else {
             this.favorites.push(id);
-            this.showNotification('Favorilere eklendi! ❤️', 'success');
+            this.showNotification("Favorilere eklendi! ❤️", "success");
         }
-        localStorage.setItem('favorites', JSON.stringify(this.favorites));
+        localStorage.setItem("favorites", JSON.stringify(this.favorites));
         this.displayConfessions();
     }
 
     shareConfession(id) {
-        const confession = this.confessions.find(c => c.id === id);
+        const confession = this.confessions.find((c) => c.id === id);
         if (confession && navigator.share) {
             navigator.share({
-                title: 'İtiraf Sitesi',
+                title: "İtiraf Sitesi",
                 text: confession.text,
-                url: window.location.href
+                url: window.location.href,
             });
         } else {
             // Fallback - metni panoya kopyala
-            navigator.clipboard.writeText(`"${confession.text}" - İtiraf Sitesi`);
-            this.showNotification('İtiraf panoya kopyalandı! 📋', 'success');
+            navigator.clipboard.writeText(
+                `"${confession.text}" - İtiraf Sitesi`,
+            );
+            this.showNotification("İtiraf panoya kopyalandı! 📋", "success");
         }
     }
 
     openComments(id) {
         this.currentConfessionId = id;
-        const confession = this.confessions.find(c => c.id === id);
+        const confession = this.confessions.find((c) => c.id === id);
         if (confession) {
             this.displayComments(confession.comments || []);
-            this.commentModal.style.display = 'block';
+            this.commentModal.style.display = "block";
         }
     }
 
     displayComments(comments) {
-        const commentsList = document.getElementById('commentsList');
-        commentsList.innerHTML = '';
-        
+        const commentsList = document.getElementById("commentsList");
+        commentsList.innerHTML = "";
+
         if (comments.length === 0) {
-            commentsList.innerHTML = '<p style="text-align: center; opacity: 0.7;">Henüz yorum yok. İlk yorumu sen yap!</p>';
+            commentsList.innerHTML =
+                '<p style="text-align: center; opacity: 0.7;">Henüz yorum yok. İlk yorumu sen yap!</p>';
             return;
         }
 
-        comments.forEach(comment => {
-            const div = document.createElement('div');
-            div.className = 'comment-item';
+        comments.forEach((comment) => {
+            const div = document.createElement("div");
+            div.className = "comment-item";
             div.innerHTML = `
                 <p>${comment.text}</p>
                 <small>${comment.timestamp}</small>
@@ -376,49 +395,56 @@ class ConfessionSite {
 
     showRandomConfession() {
         if (this.confessions.length === 0) {
-            this.showNotification('Henüz hiç itiraf yok!', 'info');
+            this.showNotification("Henüz hiç itiraf yok!", "info");
             return;
         }
-        
+
         const randomIndex = Math.floor(Math.random() * this.confessions.length);
         const randomConfession = this.confessions[randomIndex];
-        
-        this.confessionsList.innerHTML = '';
+
+        this.confessionsList.innerHTML = "";
         const element = this.createConfessionElement(randomConfession, 0);
-        element.style.border = '3px solid gold';
-        element.style.transform = 'scale(1.02)';
+        element.style.border = "3px solid gold";
+        element.style.transform = "scale(1.02)";
         this.confessionsList.appendChild(element);
-        
-        this.showNotification('Rastgele itiraf gösteriliyor! 🎲', 'info');
+
+        this.showNotification("Rastgele itiraf gösteriliyor! 🎲", "info");
     }
 
     showDailyConfession() {
         const today = new Date().toDateString();
-        const todayConfessions = this.confessions.filter(c => c.date === today);
-        
+        const todayConfessions = this.confessions.filter(
+            (c) => c.date === today,
+        );
+
         if (todayConfessions.length === 0) {
-            this.showNotification('Bugün henüz itiraf yok!', 'info');
+            this.showNotification("Bugün henüz itiraf yok!", "info");
             return;
         }
-        
-        const mostLiked = todayConfessions.reduce((prev, current) => 
-            ((prev.likes || 0) + (prev.love || 0)) > ((current.likes || 0) + (current.love || 0)) ? prev : current
+
+        const mostLiked = todayConfessions.reduce((prev, current) =>
+            (prev.likes || 0) + (prev.love || 0) >
+            (current.likes || 0) + (current.love || 0)
+                ? prev
+                : current,
         );
-        
-        this.confessionsList.innerHTML = '';
+
+        this.confessionsList.innerHTML = "";
         const element = this.createConfessionElement(mostLiked, 0);
-        element.style.border = '3px solid #FFD700';
-        element.style.background = 'linear-gradient(135deg, #FFF8DC, #FFFACD)';
+        element.style.border = "3px solid #FFD700";
+        element.style.background = "linear-gradient(135deg, #FFF8DC, #FFFACD)";
         this.confessionsList.appendChild(element);
-        
-        this.showNotification('Günün en beğenilen itirafı! ⭐', 'success');
+
+        this.showNotification("Günün en beğenilen itirafı! ⭐", "success");
     }
 
     showFavorites() {
-        const favoriteConfessions = this.confessions.filter(c => this.favorites.includes(c.id));
-        
-        this.confessionsList.innerHTML = '';
-        
+        const favoriteConfessions = this.confessions.filter((c) =>
+            this.favorites.includes(c.id),
+        );
+
+        this.confessionsList.innerHTML = "";
+
         if (favoriteConfessions.length === 0) {
             this.confessionsList.innerHTML = `
                 <div class="confession-item" style="text-align: center; opacity: 0.7;">
@@ -427,49 +453,59 @@ class ConfessionSite {
             `;
             return;
         }
-        
+
         favoriteConfessions.forEach((confession, index) => {
             const element = this.createConfessionElement(confession, index);
-            element.style.border = '2px solid #ff69b4';
+            element.style.border = "2px solid #ff69b4";
             this.confessionsList.appendChild(element);
         });
-        
-        this.showNotification(`${favoriteConfessions.length} favori itiraf gösteriliyor! ❤️`, 'info');
+
+        this.showNotification(
+            `${favoriteConfessions.length} favori itiraf gösteriliyor! ❤️`,
+            "info",
+        );
     }
 
     toggleTheme() {
         this.isDarkMode = !this.isDarkMode;
-        localStorage.setItem('darkMode', this.isDarkMode);
+        localStorage.setItem("darkMode", this.isDarkMode);
         this.setTheme();
     }
 
     setTheme() {
         if (this.isDarkMode) {
-            document.body.classList.add('dark-mode');
-            document.getElementById('themeIcon').textContent = '☀️';
+            document.body.classList.add("dark-mode");
+            document.getElementById("themeIcon").textContent = "☀️";
         } else {
-            document.body.classList.remove('dark-mode');
-            document.getElementById('themeIcon').textContent = '🌙';
+            document.body.classList.remove("dark-mode");
+            document.getElementById("themeIcon").textContent = "🌙";
         }
     }
 
     updateStats() {
         const totalConfessions = this.confessions.length;
-        const totalLikes = this.confessions.reduce((sum, c) => sum + (c.likes || 0) + (c.love || 0), 0);
+        const totalLikes = this.confessions.reduce(
+            (sum, c) => sum + (c.likes || 0) + (c.love || 0),
+            0,
+        );
         const today = new Date().toDateString();
-        const todayConfessions = this.confessions.filter(c => c.date === today).length;
-        
-        document.getElementById('totalConfessions').textContent = totalConfessions;
-        document.getElementById('totalLikes').textContent = totalLikes;
-        document.getElementById('todayConfessions').textContent = todayConfessions;
+        const todayConfessions = this.confessions.filter(
+            (c) => c.date === today,
+        ).length;
+
+        document.getElementById("totalConfessions").textContent =
+            totalConfessions;
+        document.getElementById("totalLikes").textContent = totalLikes;
+        document.getElementById("todayConfessions").textContent =
+            todayConfessions;
     }
 
     autoSave() {
-        localStorage.setItem('autoSave', this.confessionText.value);
+        localStorage.setItem("autoSave", this.confessionText.value);
     }
 
     loadAutoSave() {
-        const saved = localStorage.getItem('autoSave');
+        const saved = localStorage.getItem("autoSave");
         if (saved && saved.trim()) {
             this.confessionText.value = saved;
             this.updateCharCounter();
@@ -477,18 +513,20 @@ class ConfessionSite {
     }
 
     clearAutoSave() {
-        localStorage.removeItem('autoSave');
+        localStorage.removeItem("autoSave");
     }
 
-    showNotification(message, type = 'info') {
-        const notification = document.createElement('div');
+    showNotification(message, type = "info") {
+        const notification = document.createElement("div");
         notification.className = `notification ${type}`;
         notification.textContent = message;
-        
-        document.getElementById('notificationContainer').appendChild(notification);
-        
+
+        document
+            .getElementById("notificationContainer")
+            .appendChild(notification);
+
         setTimeout(() => {
-            notification.style.opacity = '0';
+            notification.style.opacity = "0";
             setTimeout(() => {
                 notification.remove();
             }, 300);
@@ -498,22 +536,26 @@ class ConfessionSite {
     playSound(type) {
         try {
             // Web Audio API ile basit ses efektleri
-            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const audioContext = new (window.AudioContext ||
+                window.webkitAudioContext)();
             const oscillator = audioContext.createOscillator();
             const gainNode = audioContext.createGain();
-            
+
             oscillator.connect(gainNode);
             gainNode.connect(audioContext.destination);
-            
+
             const frequencies = {
                 success: [523, 659, 784],
                 reaction: [440],
-                error: [220, 196]
+                error: [220, 196],
             };
-            
+
             const freq = frequencies[type] || [440];
-            
-            oscillator.frequency.setValueAtTime(freq[0], audioContext.currentTime);
+
+            oscillator.frequency.setValueAtTime(
+                freq[0],
+                audioContext.currentTime,
+            );
             gainNode.gain.setValueAtTime(0.05, audioContext.currentTime);
             oscillator.start();
             oscillator.stop(audioContext.currentTime + 0.2);
@@ -537,52 +579,61 @@ class ConfessionSite {
 
     // Mevcut metodlar (değiştirilmemiş)
     showError(message) {
-        this.submitBtn.style.background = 'linear-gradient(45deg, #ff4444, #cc0000)';
-        const originalText = this.submitBtn.querySelector('.btn-text').textContent;
-        this.submitBtn.querySelector('.btn-text').textContent = message;
-        
+        this.submitBtn.style.background =
+            "linear-gradient(45deg, #ff4444, #cc0000)";
+        const originalText =
+            this.submitBtn.querySelector(".btn-text").textContent;
+        this.submitBtn.querySelector(".btn-text").textContent = message;
+
         setTimeout(() => {
-            this.submitBtn.style.background = 'var(--primary-gradient)';
-            this.submitBtn.querySelector('.btn-text').textContent = originalText;
+            this.submitBtn.style.background = "var(--primary-gradient)";
+            this.submitBtn.querySelector(".btn-text").textContent =
+                originalText;
         }, 2000);
     }
 
     showSuccess() {
-        this.submitBtn.classList.add('success-animation');
-        const originalText = this.submitBtn.querySelector('.btn-text').textContent;
-        this.submitBtn.querySelector('.btn-text').textContent = 'İtiraf Gönderildi! ✨';
-        
+        this.submitBtn.classList.add("success-animation");
+        const originalText =
+            this.submitBtn.querySelector(".btn-text").textContent;
+        this.submitBtn.querySelector(".btn-text").textContent =
+            "İtiraf Gönderildi! ✨";
+
         setTimeout(() => {
-            this.submitBtn.classList.remove('success-animation');
-            this.submitBtn.querySelector('.btn-text').textContent = originalText;
+            this.submitBtn.classList.remove("success-animation");
+            this.submitBtn.querySelector(".btn-text").textContent =
+                originalText;
         }, 2000);
     }
 
     clearForm() {
-        this.confessionText.value = '';
-        this.categorySelect.value = 'genel';
+        this.confessionText.value = "";
+        this.categorySelect.value = "genel";
         this.updateCharCounter();
     }
 
     saveConfessions() {
-        localStorage.setItem('confessions', JSON.stringify(this.confessions));
+        localStorage.setItem("confessions", JSON.stringify(this.confessions));
     }
 
     startFloatingEmojis() {
-        const emojis = document.querySelectorAll('.emoji');
-        emojis.forEach(emoji => {
+        const emojis = document.querySelectorAll(".emoji");
+        emojis.forEach((emoji) => {
             this.animateEmoji(emoji);
         });
     }
 
     animateEmoji(emoji) {
         const startPosition = Math.random() * window.innerWidth;
-        emoji.style.left = startPosition + 'px';
-        emoji.style.animationDuration = (5 + Math.random() * 5) + 's';
-        
-        setTimeout(() => {
-            this.animateEmoji(emoji);
-        }, (5000 + Math.random() * 5000));
+        emoji.style.left = startPosition + "px";
+        emoji.style.animationDuration = 5 + Math.random() * 5 + "s";
+
+        setTimeout(
+            () => {
+                this.animateEmoji(emoji);
+            },
+            5000 + Math.random() * 5000,
+        );
     }
 
     triggerConfetti() {
@@ -594,48 +645,59 @@ class ConfessionSite {
     }
 
     createConfettiPiece() {
-        const confetti = document.createElement('div');
-        const colors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#f9ca24', '#f0932b', '#eb4d4b', '#6c5ce7', '#fd79a8', '#00b894'];
-        
-        confetti.style.position = 'fixed';
-        confetti.style.width = '12px';
-        confetti.style.height = '12px';
-        confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-        confetti.style.left = Math.random() * window.innerWidth + 'px';
-        confetti.style.top = '-15px';
-        confetti.style.borderRadius = Math.random() > 0.5 ? '50%' : '0';
-        confetti.style.pointerEvents = 'none';
-        confetti.style.zIndex = '1000';
-        confetti.style.animation = 'confettiFall 4s linear forwards';
-        
+        const confetti = document.createElement("div");
+        const colors = [
+            "#ff6b6b",
+            "#4ecdc4",
+            "#45b7d1",
+            "#f9ca24",
+            "#f0932b",
+            "#eb4d4b",
+            "#6c5ce7",
+            "#fd79a8",
+            "#00b894",
+        ];
+
+        confetti.style.position = "fixed";
+        confetti.style.width = "12px";
+        confetti.style.height = "12px";
+        confetti.style.backgroundColor =
+            colors[Math.floor(Math.random() * colors.length)];
+        confetti.style.left = Math.random() * window.innerWidth + "px";
+        confetti.style.top = "-15px";
+        confetti.style.borderRadius = Math.random() > 0.5 ? "50%" : "0";
+        confetti.style.pointerEvents = "none";
+        confetti.style.zIndex = "1000";
+        confetti.style.animation = "confettiFall 4s linear forwards";
+
         document.body.appendChild(confetti);
-        
+
         setTimeout(() => {
             confetti.remove();
         }, 4000);
     }
 
     createStarRating(confessionId, currentRating) {
-        let stars = '';
+        let stars = "";
         for (let i = 1; i <= 5; i++) {
-            stars += `<span class="star ${i <= currentRating ? 'filled' : ''}" onclick="window.confessionSite.rateConfession(${confessionId}, ${i})">⭐</span>`;
+            stars += `<span class="star ${i <= currentRating ? "filled" : ""}" onclick="window.confessionSite.rateConfession(${confessionId}, ${i})">⭐</span>`;
         }
         return stars;
     }
 
     rateConfession(id, rating) {
-        const confession = this.confessions.find(c => c.id === id);
+        const confession = this.confessions.find((c) => c.id === id);
         if (confession) {
             confession.rating = rating;
             this.saveConfessions();
             this.displayConfessions();
-            this.showNotification(`${rating} yıldız verdiniz! ⭐`, 'success');
+            this.showNotification(`${rating} yıldız verdiniz! ⭐`, "success");
         }
     }
 }
 
 // CSS dinamik ekleme
-const style = document.createElement('style');
+const style = document.createElement("style");
 style.textContent = `
     @keyframes confettiFall {
         to {
@@ -676,24 +738,29 @@ document.head.appendChild(style);
 window.confessionSite = new ConfessionSite();
 
 // Yorum ekleme
-document.addEventListener('DOMContentLoaded', () => {
-    document.getElementById('addCommentBtn')?.addEventListener('click', () => {
-        const commentText = document.getElementById('commentText').value.trim();
+document.addEventListener("DOMContentLoaded", () => {
+    document.getElementById("addCommentBtn")?.addEventListener("click", () => {
+        const commentText = document.getElementById("commentText").value.trim();
         if (!commentText || !window.confessionSite.currentConfessionId) return;
-        
-        const confession = window.confessionSite.confessions.find(c => c.id === window.confessionSite.currentConfessionId);
+
+        const confession = window.confessionSite.confessions.find(
+            (c) => c.id === window.confessionSite.currentConfessionId,
+        );
         if (confession) {
             if (!confession.comments) confession.comments = [];
             confession.comments.push({
                 text: commentText,
-                timestamp: new Date().toLocaleString('tr-TR')
+                timestamp: new Date().toLocaleString("tr-TR"),
             });
-            
+
             window.confessionSite.saveConfessions();
             window.confessionSite.displayComments(confession.comments);
             window.confessionSite.displayConfessions();
-            document.getElementById('commentText').value = '';
-            window.confessionSite.showNotification('Yorum eklendi! 💬', 'success');
+            document.getElementById("commentText").value = "";
+            window.confessionSite.showNotification(
+                "Yorum eklendi! 💬",
+                "success",
+            );
         }
     });
 });
